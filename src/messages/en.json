@@ -1,0 +1,157 @@
+{
+  "common": {
+    "appName": "UniCompany",
+    "home": "Home",
+    "search": "Search",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "chat": "Chat",
+    "companies": "Companies",
+    "individuals": "Individuals",
+    "dashboard": "Dashboard",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
+    "language": "Language",
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "landing": {
+    "hero": {
+      "title": "UniCompany Platform",
+      "subtitle": "Bridging Talents with Companies",
+      "description": "A professional platform connecting skilled individuals with leading companies worldwide",
+      "cta": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Why UniCompany?",
+      "forIndividuals": "For Individuals",
+      "forIndividualsDesc": "Upload your CV and showcase your skills to top companies",
+      "forCompanies": "For Companies",
+      "forCompaniesDesc": "Display your services and find the best talents worldwide",
+      "secure": "Secure & Trusted",
+      "secureDesc": "Your data is protected with the highest security standards"
+    },
+    "stats": {
+      "users": "Users",
+      "companies": "Companies",
+      "countries": "Countries"
+    }
+  },
+  "auth": {
+    "loginTitle": "Login",
+    "registerTitle": "Create New Account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerAs": "Register as",
+    "individual": "Individual",
+    "company": "Company",
+    "fullName": "Full Name",
+    "companyName": "Company Name",
+    "commercialRegistration": "Commercial Registration Number",
+    "commercialRegistrationRequired": "Commercial Registration is required",
+    "verifyEmail": "Verify Your Email",
+    "verifyEmailDesc": "A verification link has been sent to your email"
+  },
+  "profile": {
+    "title": "Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "specialization": "Specialization",
+    "skills": "Skills",
+    "experience": "Years of Experience",
+    "country": "Country",
+    "city": "City",
+    "bio": "About You",
+    "uploadCV": "Upload CV",
+    "fillCV": "Fill CV Form",
+    "cvUploaded": "CV Uploaded"
+  },
+  "company": {
+    "description": "Company Description",
+    "services": "Services",
+    "projects": "Previous Projects",
+    "team": "Team Members",
+    "contact": "Contact Information",
+    "industry": "Industry",
+    "website": "Website",
+    "founded": "Founded Year",
+    "size": "Company Size",
+    "requestCV": "Request CV",
+    "requestSent": "Request Sent",
+    "viewProfile": "View Profile"
+  },
+  "search": {
+    "title": "Search",
+    "searchPlaceholder": "Search for companies or individuals...",
+    "filters": "Filters",
+    "country": "Country",
+    "specialization": "Specialization",
+    "experience": "Experience",
+    "industry": "Industry",
+    "noResults": "No results found",
+    "results": "Search Results"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "cvRequest": "CV Access Request",
+    "cvApproved": "Your request has been approved",
+    "cvRejected": "Your request has been rejected",
+    "newMessage": "New Message",
+    "approve": "Approve",
+    "reject": "Reject",
+    "noNotifications": "No notifications"
+  },
+  "chat": {
+    "title": "Chat",
+    "sendMessage": "Send a message...",
+    "noConversations": "No conversations",
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "admin": {
+    "title": "Dashboard",
+    "users": "Users",
+    "totalUsers": "Total Users",
+    "totalCompanies": "Total Companies",
+    "totalRequests": "Total Requests",
+    "newToday": "New Today",
+    "manageUsers": "Manage Users",
+    "manageCompanies": "Manage Companies",
+    "manageAdmins": "Manage Admins",
+    "analytics": "Analytics",
+    "logs": "Activity Logs",
+    "permissions": "Permissions",
+    "addAdmin": "Add Admin",
+    "suspend": "Suspend",
+    "activate": "Activate",
+    "role": "Role"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated"
+  },
+  "faq": {
+    "title": "FAQ"
+  }
+}

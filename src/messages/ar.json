@@ -1,0 +1,157 @@
+{
+  "common": {
+    "appName": "UniCompany",
+    "home": "الرئيسية",
+    "search": "بحث",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "notifications": "الإشعارات",
+    "chat": "المحادثات",
+    "companies": "الشركات",
+    "individuals": "الأفراد",
+    "dashboard": "لوحة التحكم",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "submit": "إرسال",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "success": "تمت العملية بنجاح",
+    "darkMode": "الوضع الداكن",
+    "lightMode": "الوضع الفاتح",
+    "language": "اللغة",
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "landing": {
+    "hero": {
+      "title": "منصة UniCompany",
+      "subtitle": "الجسر بين الكفاءات والشركات",
+      "description": "منصة احترافية تربط أصحاب المهارات بالشركات الرائدة حول العالم",
+      "cta": "ابدأ الآن",
+      "learnMore": "اعرف أكثر"
+    },
+    "features": {
+      "title": "لماذا UniCompany؟",
+      "forIndividuals": "للأفراد",
+      "forIndividualsDesc": "ارفع سيرتك الذاتية واعرض مهاراتك أمام أفضل الشركات",
+      "forCompanies": "للشركات",
+      "forCompaniesDesc": "اعرض خدماتك وابحث عن أفضل الكفاءات حول العالم",
+      "secure": "آمن وموثوق",
+      "secureDesc": "بياناتك محمية بأعلى معايير الأمان والخصوصية"
+    },
+    "stats": {
+      "users": "مستخدم",
+      "companies": "شركة",
+      "countries": "دولة"
+    }
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "registerTitle": "إنشاء حساب جديد",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "registerAs": "التسجيل كـ",
+    "individual": "فرد",
+    "company": "شركة",
+    "fullName": "الاسم الكامل",
+    "companyName": "اسم الشركة",
+    "commercialRegistration": "رقم السجل التجاري",
+    "commercialRegistrationRequired": "رقم السجل التجاري مطلوب",
+    "verifyEmail": "تحقق من بريدك الإلكتروني",
+    "verifyEmailDesc": "تم إرسال رابط التحقق إلى بريدك الإلكتروني"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "specialization": "التخصص",
+    "skills": "المهارات",
+    "experience": "سنوات الخبرة",
+    "country": "الدولة",
+    "city": "المدينة",
+    "bio": "نبذة عنك",
+    "uploadCV": "رفع السيرة الذاتية",
+    "fillCV": "تعبئة السيرة الذاتية",
+    "cvUploaded": "تم رفع السيرة الذاتية"
+  },
+  "company": {
+    "description": "وصف الشركة",
+    "services": "الخدمات",
+    "projects": "المشاريع السابقة",
+    "team": "فريق العمل",
+    "contact": "معلومات التواصل",
+    "industry": "المجال",
+    "website": "الموقع الإلكتروني",
+    "founded": "سنة التأسيس",
+    "size": "حجم الشركة",
+    "requestCV": "طلب السيرة الذاتية",
+    "requestSent": "تم إرسال الطلب",
+    "viewProfile": "عرض الملف"
+  },
+  "search": {
+    "title": "البحث",
+    "searchPlaceholder": "ابحث عن شركات أو أفراد...",
+    "filters": "الفلاتر",
+    "country": "الدولة",
+    "specialization": "التخصص",
+    "experience": "الخبرة",
+    "industry": "المجال",
+    "noResults": "لا توجد نتائج",
+    "results": "نتائج البحث"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "cvRequest": "طلب عرض السيرة الذاتية",
+    "cvApproved": "تمت الموافقة على طلبك",
+    "cvRejected": "تم رفض طلبك",
+    "newMessage": "رسالة جديدة",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "noNotifications": "لا توجد إشعارات"
+  },
+  "chat": {
+    "title": "المحادثات",
+    "sendMessage": "أرسل رسالة...",
+    "noConversations": "لا توجد محادثات",
+    "online": "متصل",
+    "offline": "غير متصل"
+  },
+  "admin": {
+    "title": "لوحة التحكم",
+    "users": "المستخدمين",
+    "totalUsers": "إجمالي المستخدمين",
+    "totalCompanies": "إجمالي الشركات",
+    "totalRequests": "إجمالي الطلبات",
+    "newToday": "جديد اليوم",
+    "manageUsers": "إدارة المستخدمين",
+    "manageCompanies": "إدارة الشركات",
+    "manageAdmins": "إدارة المشرفين",
+    "analytics": "الإحصائيات",
+    "logs": "سجل العمليات",
+    "permissions": "الصلاحيات",
+    "addAdmin": "إضافة مشرف",
+    "suspend": "تعليق",
+    "activate": "تفعيل",
+    "role": "الدور"
+  },
+  "privacy": {
+    "title": "سياسة الخصوصية",
+    "lastUpdated": "آخر تحديث"
+  },
+  "terms": {
+    "title": "شروط الاستخدام",
+    "lastUpdated": "آخر تحديث"
+  },
+  "faq": {
+    "title": "الأسئلة الشائعة"
+  }
+}
