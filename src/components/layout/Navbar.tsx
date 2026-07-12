@@ -19,9 +19,9 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: isAr ? 'الرئيسية' : 'Home' },
-    { href: '/search', label: isAr ? 'البحث' : 'Search' },
     { href: '/companies', label: isAr ? 'الشركات' : 'Companies' },
-    { href: '/jobs', label: isAr ? 'الوظائف' : 'Jobs' },
+    { href: '/talents', label: isAr ? 'طالبي العمل' : 'Talents' },
+    { href: '/jobs', label: isAr ? 'طلبات التوظيف' : 'Job Requests' },
   ];
 
   return (
