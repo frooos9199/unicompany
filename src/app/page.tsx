@@ -5,7 +5,10 @@ import { useAppStore } from '@/store/useAppStore';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/landing/Hero';
+import TrustedCompanies from '@/components/landing/TrustedCompanies';
 import Features from '@/components/landing/Features';
+import LatestJobs from '@/components/landing/LatestJobs';
+import TalentsShowcase from '@/components/landing/TalentsShowcase';
 import CTA from '@/components/landing/CTA';
 
 export default function Home() {
@@ -21,6 +24,9 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
+      <TrustedCompanies />
+      <LatestJobs />
+      <TalentsShowcase />
       <Features />
       <CTA />
       <Footer />
