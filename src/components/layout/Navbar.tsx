@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiBell, FiMessageSquare } from 'react-icons/fi';
+import { FiMenu, FiX, FiBell, FiMessageSquare, FiSettings } from 'react-icons/fi';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 import { useAppStore } from '@/store/useAppStore';
@@ -15,11 +15,13 @@ export default function Navbar() {
   const { user } = useAuthStore();
 
   const isAr = locale === 'ar';
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const navLinks = [
     { href: '/', label: isAr ? 'الرئيسية' : 'Home' },
     { href: '/search', label: isAr ? 'البحث' : 'Search' },
     { href: '/companies', label: isAr ? 'الشركات' : 'Companies' },
+    { href: '/jobs', label: isAr ? 'الوظائف' : 'Jobs' },
   ];
 
   return (
@@ -50,6 +52,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user && (
               <>
+                {isAdmin && (
+                  <Link href="/admin">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      className="p-2 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-all"
+                      title={isAr ? 'لوحة التحكم' : 'Dashboard'}
+                    >
+                      <FiSettings size={20} />
+                    </motion.button>
+                  </Link>
+                )}
                 <Link href="/chat">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -126,6 +139,15 @@ export default function Navbar() {
               ))}
               {user && (
                 <>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="block py-3 px-3 rounded-xl text-[var(--accent)] hover:bg-[var(--accent)]/10 font-medium text-sm"
+                    >
+                      {isAr ? '⚙️ لوحة التحكم' : '⚙️ Dashboard'}
+                    </Link>
+                  )}
                   <Link
                     href="/chat"
                     onClick={() => setMobileOpen(false)}

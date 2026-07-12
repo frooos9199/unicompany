@@ -18,7 +18,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function ProfilePage() {
   const { locale, theme } = useAppStore();
-  const { user, setUser } = useAuthStore();
+  const { user, loading: authLoading, setUser } = useAuthStore();
   const router = useRouter();
   const isAr = locale === 'ar';
   const [loading, setLoading] = useState(false);
@@ -31,12 +31,16 @@ export default function ProfilePage() {
   }, [theme, locale]);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       router.push('/auth/login');
       return;
     }
     setFormData(user);
-  }, [user]);
+  }, [authLoading, router, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -81,7 +85,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!user) return null;
+  if (authLoading || !user) return null;
 
   return (
     <main>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cairo, Inter } from 'next/font/google';
 import './globals.css';
+import AuthProvider from '@/components/auth/AuthProvider';
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -25,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <body className={`${cairo.variable} ${inter.variable} antialiased`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

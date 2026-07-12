@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 
 export default function ChatPage() {
   const { locale, theme } = useAppStore();
-  const { user } = useAuthStore();
+  const { user, loading: authLoading } = useAuthStore();
   const router = useRouter();
   const isAr = locale === 'ar';
   const [conversations, setConversations] = useState<any[]>([]);
@@ -28,6 +28,10 @@ export default function ChatPage() {
   }, [theme, locale]);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       router.push('/auth/login');
       return;
@@ -43,7 +47,7 @@ export default function ChatPage() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [authLoading, router, user]);
 
   useEffect(() => {
     if (!activeConversation) return;
@@ -81,7 +85,7 @@ export default function ChatPage() {
     setNewMessage('');
   };
 
-  if (!user) return null;
+  if (authLoading || !user) return null;
 
   return (
     <main>

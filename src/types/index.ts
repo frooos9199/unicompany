@@ -150,3 +150,28 @@ export type AdminPermission =
   | 'view_analytics'
   | 'manage_content'
   | 'view_logs';
+
+export interface Job {
+  id: string;
+  title: string;
+  description: string;
+  companyId: string;
+  companyName: string;
+  country: string;
+  city?: string;
+  type: 'full-time' | 'part-time' | 'remote' | 'contract' | 'freelance';
+  salary?: string;
+  requirements: string[];
+  status: 'active' | 'closed';
+  createdAt: Date;
+}
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  applicantId: string;
+  applicantName: string;
+  message?: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: Date;
+}

@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
+import { logoutUser } from '@/lib/auth';
 
 export default function LoginPage() {
   const { locale, theme } = useAppStore();
@@ -32,14 +33,17 @@ export default function LoginPage() {
     try {
       const user = await loginUser(email, password);
       const profile = await getUserProfile(user.uid);
-      if (profile) {
-        setUser(profile as any);
-        toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
-        if (profile.role === 'superadmin' || profile.role === 'admin') {
-          router.push('/admin');
-        } else {
-          router.push('/profile');
-        }
+      if (!profile) {
+        await logoutUser();
+        throw new Error(isAr ? 'لا يوجد ملف مستخدم مرتبط بهذا الحساب' : 'No user profile found for this account');
+      }
+
+      setUser(profile as any);
+      toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
+      if (profile.role === 'superadmin' || profile.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/profile');
       }
     } catch (error: unknown) {
       const err = error as { code?: string; message?: string };

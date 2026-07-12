@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
   const { locale, theme } = useAppStore();
-  const { user } = useAuthStore();
+  const { user, loading: authLoading } = useAuthStore();
   const router = useRouter();
   const isAr = locale === 'ar';
   const [activeTab, setActiveTab] = useState('overview');
@@ -27,12 +27,18 @@ export default function AdminPage() {
   }, [theme, locale]);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user || (user.role !== 'admin' && user.role !== 'superadmin')) {
       router.push('/');
       return;
     }
     loadStats();
-  }, [user]);
+  }, [authLoading, router, user]);
+
+  if (authLoading || !user) return null;
 
   const loadStats = async () => {
     try {
