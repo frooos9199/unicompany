@@ -11,6 +11,9 @@ import Button from '@/components/ui/Button';
 import { FiSearch, FiMapPin, FiBriefcase, FiUser } from 'react-icons/fi';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import Link from 'next/link';
+import { AppUser } from '@/types';
+import { getLocalizedCompanyDescription, getLocalizedCompanyName, getLocalizedIndustry, getLocalizedSpecialization } from '@/lib/i18n-content';
 
 export default function SearchPage() {
   const { locale, theme } = useAppStore();
@@ -18,7 +21,7 @@ export default function SearchPage() {
   const [searchType, setSearchType] = useState<'individuals' | 'companies'>('individuals');
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({ country: '', specialization: '', experience: '' });
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,14 +40,24 @@ export default function SearchPage() {
       }
 
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((docSnapshot) => ({ uid: docSnapshot.id, ...docSnapshot.data() } as AppUser));
 
       // Client-side filtering for text search
       const filtered = data.filter(item => {
-        const name = (item as any).displayName?.toLowerCase() || '';
-        const spec = (item as any).specialization?.toLowerCase() || '';
+        const name = item.displayName?.toLowerCase() || '';
+        const spec = getLocalizedSpecialization(item, locale).toLowerCase();
+        const industry = getLocalizedIndustry(item, locale).toLowerCase();
+        const companyDescription = getLocalizedCompanyDescription(item, locale).toLowerCase();
+        const companyName = getLocalizedCompanyName(item, locale).toLowerCase();
+        const country = item.country?.toLowerCase() || '';
         const queryLower = searchQuery.toLowerCase();
-        return !searchQuery || name.includes(queryLower) || spec.includes(queryLower);
+
+        const matchesQuery = !searchQuery || name.includes(queryLower) || spec.includes(queryLower) || industry.includes(queryLower) || companyName.includes(queryLower) || companyDescription.includes(queryLower);
+        const matchesSpecialization = !filters.specialization || spec.includes(filters.specialization.toLowerCase()) || industry.includes(filters.specialization.toLowerCase());
+        const matchesCountry = !filters.country || country.includes(filters.country.toLowerCase());
+        const matchesExperience = searchType !== 'individuals' || !filters.experience || (item.experienceYears || 0) >= Number(filters.experience);
+
+        return matchesQuery && matchesSpecialization && matchesCountry && matchesExperience;
       });
 
       setResults(filtered);
@@ -133,39 +146,43 @@ export default function SearchPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((result, i) => (
               <motion.div
-                key={result.id}
+                key={result.uid}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] flex items-center justify-center text-white font-bold">
-                      {result.displayName?.charAt(0) || '?'}
+                <Link href={result.role === 'company' ? `/companies/${result.uid}` : `/talents/${result.uid}`} className="block h-full">
+                  <Card className="group h-full">
+                    <div className="flex items-center gap-3 mb-3">
+                      {result.avatar ? (
+                        <img src={result.avatar} alt={result.displayName || 'Profile avatar'} className="w-12 h-12 rounded-full object-cover border border-[var(--border)] bg-[var(--background-secondary)]" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] flex items-center justify-center text-white font-bold">
+                          {result.displayName?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-[var(--foreground)]">{result.displayName}</h3>
+                        <p className="text-sm text-[var(--foreground-secondary)]">
+                          {getLocalizedSpecialization(result, locale) || getLocalizedIndustry(result, locale) || ''}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-[var(--foreground)]">{result.displayName}</h3>
-                      <p className="text-sm text-[var(--foreground-secondary)]">
-                        {result.specialization || result.industry || ''}
+                    {result.country && (
+                      <p className="text-sm text-[var(--foreground-secondary)] flex items-center gap-1">
+                        <FiMapPin size={14} /> {result.country}{result.city ? `, ${result.city}` : ''}
                       </p>
-                    </div>
-                  </div>
-                  {result.country && (
-                    <p className="text-sm text-[var(--foreground-secondary)] flex items-center gap-1">
-                      <FiMapPin size={14} /> {result.country}{result.city ? `, ${result.city}` : ''}
-                    </p>
-                  )}
-                  {result.experienceYears && (
-                    <p className="text-sm text-[var(--foreground-secondary)] mt-1">
-                      {result.experienceYears} {isAr ? 'سنوات خبرة' : 'years experience'}
-                    </p>
-                  )}
-                  <div className="mt-4">
-                    <Button variant="secondary" size="sm" fullWidth>
+                    )}
+                    {result.experienceYears && (
+                      <p className="text-sm text-[var(--foreground-secondary)] mt-1">
+                        {result.experienceYears} {isAr ? 'سنوات خبرة' : 'years experience'}
+                      </p>
+                    )}
+                    <div className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--foreground)] transition-colors group-hover:border-[var(--primary-light)] group-hover:text-[var(--primary-light)]">
                       {isAr ? 'عرض الملف' : 'View Profile'}
-                    </Button>
-                  </div>
-                </Card>
+                    </div>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>

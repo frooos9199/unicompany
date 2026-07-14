@@ -4,22 +4,25 @@ import {
   signOut,
   sendEmailVerification,
   sendPasswordResetEmail,
-  User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { UserRole } from '@/types';
+import { AppUser, UserRole } from '@/types';
+import { getCvProfile } from './cvProfiles';
+
+export interface RegisterUserResult {
+  user: Awaited<ReturnType<typeof createUserWithEmailAndPassword>>['user'];
+  verificationEmailSent: boolean;
+}
 
 export async function registerUser(
   email: string,
   password: string,
   role: UserRole,
   additionalData: Record<string, unknown>
-) {
+): Promise<RegisterUserResult> {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
-
-  await sendEmailVerification(user);
 
   await setDoc(doc(db, 'users', user.uid), {
     uid: user.uid,
@@ -32,7 +35,15 @@ export async function registerUser(
     isActive: true,
   });
 
-  return user;
+  let verificationEmailSent = false;
+  try {
+    await sendEmailVerification(user);
+    verificationEmailSent = true;
+  } catch {
+    verificationEmailSent = false;
+  }
+
+  return { user, verificationEmailSent };
 }
 
 export async function loginUser(email: string, password: string) {
@@ -48,11 +59,33 @@ export async function resetPassword(email: string) {
   await sendPasswordResetEmail(auth, email);
 }
 
-export async function getUserProfile(uid: string) {
+export async function resendVerificationEmail() {
+  if (!auth.currentUser) {
+    throw new Error('No authenticated user available for verification email');
+  }
+
+  await sendEmailVerification(auth.currentUser);
+}
+
+export async function getUserProfile(uid: string): Promise<AppUser | null> {
   const docRef = doc(db, 'users', uid);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    return docSnap.data();
+    const profile = docSnap.data() as AppUser;
+    if (profile.role === 'individual') {
+      const cvProfile = await getCvProfile(uid);
+      if (cvProfile) {
+        return {
+          ...profile,
+          cvVisibility: cvProfile.cvVisibility,
+          cvFile: cvProfile.cvFile,
+          cvData: cvProfile.cvData,
+          hasCv: Boolean(cvProfile.cvFile),
+        } as AppUser;
+      }
+    }
+
+    return profile;
   }
   return null;
 }

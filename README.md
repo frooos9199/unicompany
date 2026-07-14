@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UniCompany
 
-## Getting Started
+UniCompany is a Next.js 16 application that connects individual talents with companies. It uses Firebase Authentication, Firestore, and Firebase Storage on the frontend with Vercel deployment.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- Firebase Auth
+- Firestore
+- Firebase Storage
+- Zustand
+- Tailwind CSS
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env.local` with the Firebase public keys:
+
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+3. Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Validate the app before deployment:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run lint
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Important Firebase Collections
 
-## Learn More
+- `users`
+- `jobs`
+- `applications`
+- `cvRequests`
+- `conversations`
+- `messages`
+- `notifications`
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Production uses Vercel.
+- All `NEXT_PUBLIC_FIREBASE_*` variables must be set in Vercel exactly as raw values without extra newlines.
+- Firestore security rules must stay aligned with the collections listed above.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current Routes
 
-## Deploy on Vercel
+- `/`
+- `/auth/login`
+- `/auth/register`
+- `/auth/forgot-password`
+- `/companies`
+- `/companies/[id]`
+- `/jobs`
+- `/talents`
+- `/search`
+- `/profile`
+- `/chat`
+- `/admin`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Seeding
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+There is a seed page for development/demo data at `/admin/seed`.

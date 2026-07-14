@@ -11,7 +11,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
-import { logoutUser } from '@/lib/auth';
+import { FirebaseError } from 'firebase/app';
+import { reload } from 'firebase/auth';
 
 export default function LoginPage() {
   const { locale, theme } = useAppStore();
@@ -31,23 +32,35 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const user = await loginUser(email, password);
-      const profile = await getUserProfile(user.uid);
+      const authUser = await loginUser(email, password);
+      await reload(authUser);
+
+      const profile = await getUserProfile(authUser.uid);
       if (!profile) {
-        await logoutUser();
         throw new Error(isAr ? 'لا يوجد ملف مستخدم مرتبط بهذا الحساب' : 'No user profile found for this account');
       }
 
-      setUser(profile as any);
+      setUser(profile);
       toast.success(isAr ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
       if (profile.role === 'superadmin' || profile.role === 'admin') {
         router.push('/admin');
       } else {
         router.push('/profile');
       }
+
+      if (!authUser.emailVerified) {
+        toast(isAr ? 'تم تسجيل الدخول. يمكنك توثيق بريدك لاحقًا إذا رغبت.' : 'Login successful. You can verify your email later if you want.');
+      }
     } catch (error: unknown) {
-      const err = error as { code?: string; message?: string };
-      toast.error(`${err.code || 'error'}: ${err.message || 'Unknown error'}`);
+      if (error instanceof FirebaseError && error.code === 'auth/too-many-requests') {
+        toast.error(isAr ? 'تم تقييد تسجيل الدخول مؤقتًا بسبب كثرة المحاولات. انتظر قليلًا ثم أعد المحاولة.' : 'Login is temporarily rate-limited after too many attempts. Please wait a bit and try again.');
+      } else if (error instanceof FirebaseError && error.code === 'auth/invalid-credential') {
+        toast.error(isAr ? 'البريد أو كلمة المرور غير صحيحة' : 'Incorrect email or password');
+      } else {
+        const code = error instanceof FirebaseError ? error.code : 'error';
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        toast.error(`${code}: ${message}`);
+      }
     } finally {
       setLoading(false);
     }

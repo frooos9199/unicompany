@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cairo, Inter } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/components/auth/AuthProvider';
+import MaintenancePage from '@/components/MaintenancePage';
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -26,9 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <body className={`${cairo.variable} ${inter.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {process.env.NEXT_PUBLIC_MAINTENANCE === 'true' ? (
+          <MaintenancePage />
+        ) : (
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        )}
       </body>
     </html>
   );

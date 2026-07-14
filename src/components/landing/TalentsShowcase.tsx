@@ -9,25 +9,27 @@ import { FiMapPin, FiArrowRight, FiArrowLeft, FiUser } from 'react-icons/fi';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
+import { AppUser } from '@/types';
+import { getLocalizedSpecialization } from '@/lib/i18n-content';
 
 export default function TalentsShowcase() {
   const { locale } = useAppStore();
   const isAr = locale === 'ar';
-  const [talents, setTalents] = useState<any[]>([]);
+  const [talents, setTalents] = useState<AppUser[]>([]);
 
   useEffect(() => {
-    loadTalents();
-  }, []);
+    const loadTalents = async () => {
+      try {
+        const q = query(collection(db, 'users'), where('role', '==', 'individual'), where('isActive', '==', true), limit(6));
+        const snapshot = await getDocs(q);
+        setTalents(snapshot.docs.map((docSnapshot) => ({ uid: docSnapshot.id, ...docSnapshot.data() } as AppUser)));
+      } catch {
+        // No talents yet
+      }
+    };
 
-  const loadTalents = async () => {
-    try {
-      const q = query(collection(db, 'users'), where('role', '==', 'individual'), where('isActive', '==', true), limit(6));
-      const snapshot = await getDocs(q);
-      setTalents(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch {
-      // No talents yet
-    }
-  };
+    void loadTalents();
+  }, []);
 
   if (talents.length === 0) return null;
 
@@ -52,48 +54,67 @@ export default function TalentsShowcase() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {talents.map((talent, i) => (
+          (() => {
+            const skills = talent.skills ?? [];
+
+            return (
           <motion.div
-            key={talent.id}
+            key={talent.uid}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
           >
-            <Card>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-11 h-11 rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-light)] flex items-center justify-center text-[var(--primary-dark)] font-bold text-sm flex-shrink-0">
-                  {talent.displayName?.charAt(0) || <FiUser />}
+            <Link href={`/talents/${talent.uid}`} className="block h-full">
+              <Card className="group h-full">
+                <div className="flex items-center gap-3 mb-3">
+                  {talent.avatar ? (
+                    <img
+                      src={talent.avatar}
+                      alt={talent.displayName || 'Talent avatar'}
+                      className="w-11 h-11 rounded-full object-cover border border-[var(--border)] bg-[var(--background-secondary)] flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-r from-[var(--accent)] to-[var(--accent-light)] flex items-center justify-center text-[var(--primary-dark)] font-bold text-sm flex-shrink-0">
+                      {talent.displayName?.charAt(0) || <FiUser />}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-[var(--foreground)] text-sm truncate">{talent.displayName}</h3>
+                    {getLocalizedSpecialization(talent, locale) && (
+                      <p className="text-xs text-[var(--primary-light)]">{getLocalizedSpecialization(talent, locale)}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-[var(--foreground)] text-sm truncate">{talent.displayName}</h3>
-                  {talent.specialization && (
-                    <p className="text-xs text-[var(--primary-light)]">{talent.specialization}</p>
+                <div className="flex flex-wrap gap-2 text-xs text-[var(--foreground-secondary)]">
+                  {talent.country && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[var(--background-secondary)]">
+                      <FiMapPin size={12} /> {talent.country}{talent.city ? `, ${talent.city}` : ''}
+                    </span>
+                  )}
+                  {talent.experienceYears && (
+                    <span className="px-2 py-1 rounded-lg bg-[var(--background-secondary)]">
+                      {talent.experienceYears} {isAr ? 'سنوات خبرة' : 'yrs exp'}
+                    </span>
                   )}
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-2 text-xs text-[var(--foreground-secondary)]">
-                {talent.country && (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[var(--background-secondary)]">
-                    <FiMapPin size={12} /> {talent.country}{talent.city ? `, ${talent.city}` : ''}
-                  </span>
+                {skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-3">
+                    {skills.slice(0, 3).map((skill, j) => (
+                      <span key={j} className="px-2 py-0.5 rounded-full text-xs bg-[var(--accent)]/10 text-[var(--accent)]">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 )}
-                {talent.experienceYears && (
-                  <span className="px-2 py-1 rounded-lg bg-[var(--background-secondary)]">
-                    {talent.experienceYears} {isAr ? 'سنوات خبرة' : 'yrs exp'}
-                  </span>
-                )}
-              </div>
-              {talent.skills?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-3">
-                  {talent.skills.slice(0, 3).map((skill: string, j: number) => (
-                    <span key={j} className="px-2 py-0.5 rounded-full text-xs bg-[var(--accent)]/10 text-[var(--accent)]">
-                      {skill}
-                    </span>
-                  ))}
+                <div className="mt-4 text-sm font-medium text-[var(--primary-light)] group-hover:text-[var(--primary)] transition-colors">
+                  {isAr ? 'عرض البطاقة' : 'Open Card'}
                 </div>
-              )}
-            </Card>
+              </Card>
+            </Link>
           </motion.div>
+            );
+          })()
         ))}
       </div>
     </section>

@@ -1,0 +1,2 @@
+UniCompany demo CV placeholder.
+This file exists only to make seeded profiles show an attached CV asset during UI demos.

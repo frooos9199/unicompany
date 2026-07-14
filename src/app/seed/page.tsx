@@ -1,16 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
 export default function SeedPage() {
   const [status, setStatus] = useState<string[]>([]);
-
-  useEffect(() => {
-    seedAdmins();
-  }, []);
 
   const createAdmin = async (email: string, password: string) => {
     // Try to sign in first
@@ -45,19 +42,27 @@ export default function SeedPage() {
           isActive: true,
         });
         return `✅ ${email} - تم إنشاء حساب جديد`;
-      } catch (err: any) {
-        return `❌ ${email} - ${err.code}: ${err.message}`;
+      } catch (error: unknown) {
+        if (error instanceof FirebaseError) {
+          return `❌ ${email} - ${error.code}: ${error.message}`;
+        }
+
+        return `❌ ${email} - Unknown error`;
       }
     }
   };
 
-  const seedAdmins = async () => {
-    const result1 = await createAdmin('summit_kw@hotmail.com', '123456');
-    setStatus(prev => [...prev, result1]);
+  useEffect(() => {
+    const seedAdmins = async () => {
+      const result1 = await createAdmin('summit_kw@hotmail.com', '123456');
+      setStatus((prev) => [...prev, result1]);
 
-    const result2 = await createAdmin('admin@unicompany.com', '123456');
-    setStatus(prev => [...prev, result2]);
-  };
+      const result2 = await createAdmin('admin@unicompany.com', '123456');
+      setStatus((prev) => [...prev, result2]);
+    };
+
+    void seedAdmins();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-8">

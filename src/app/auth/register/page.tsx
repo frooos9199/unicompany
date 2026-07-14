@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiMail, FiLock, FiUser, FiBriefcase } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
+import { FirebaseError } from 'firebase/app';
+import { logoutUser } from '@/lib/auth';
 
 type RegisterType = 'individual' | 'company' | null;
 
@@ -39,6 +41,10 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!registerType) {
+      toast.error(isAr ? 'اختر نوع الحساب أولاً' : 'Select an account type first');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       toast.error(isAr ? 'كلمات المرور غير متطابقة' : 'Passwords do not match');
       return;
@@ -65,17 +71,27 @@ export default function RegisterPage() {
             firstName: formData.displayName.split(' ')[0] || '',
             lastName: formData.displayName.split(' ').slice(1).join(' ') || '',
             skills: [],
-            cvVisibility: 'private',
+            cvVisibility: 'request_only',
           };
 
-      await registerUser(formData.email, formData.password, registerType!, additionalData);
-      toast.success(isAr ? 'تم إنشاء الحساب! تحقق من بريدك الإلكتروني' : 'Account created! Check your email');
-      router.push('/auth/login');
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error(isAr ? 'البريد الإلكتروني مستخدم بالفعل' : 'Email already in use');
+      const result = await registerUser(formData.email, formData.password, registerType, additionalData);
+      await logoutUser();
+      if (result.verificationEmailSent) {
+        toast.success(isAr ? 'تم إنشاء الحساب بنجاح. أرسلنا رسالة تحقق اختيارية إلى بريدك.' : 'Account created successfully. We sent an optional verification email to your inbox.');
       } else {
-        toast.error(isAr ? 'حدث خطأ، حاول مرة أخرى' : 'An error occurred, try again');
+        toast.success(isAr ? 'تم إنشاء الحساب بنجاح ويمكنك تسجيل الدخول مباشرة.' : 'Account created successfully and you can log in immediately.');
+      }
+      router.push('/auth/login');
+    } catch (error: unknown) {
+      if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
+        toast.error(isAr ? 'البريد الإلكتروني مستخدم بالفعل' : 'Email already in use');
+      } else if (error instanceof FirebaseError && error.code === 'auth/too-many-requests') {
+        toast.error(isAr ? 'تم تقييد التسجيل مؤقتًا من Firebase بسبب كثرة المحاولات. انتظر قليلًا ثم أعد المحاولة.' : 'Firebase temporarily rate-limited sign up after too many attempts. Please wait a bit and try again.');
+      } else if (error instanceof FirebaseError && error.code === 'auth/weak-password') {
+        toast.error(isAr ? 'كلمة المرور ضعيفة جدًا' : 'Password is too weak');
+      } else {
+        const message = error instanceof FirebaseError ? error.message : (isAr ? 'حدث خطأ، حاول مرة أخرى' : 'An error occurred, try again');
+        toast.error(message);
       }
     } finally {
       setLoading(false);
@@ -221,6 +237,10 @@ export default function RegisterPage() {
                 <Button type="submit" fullWidth loading={loading}>
                   {isAr ? 'إنشاء حساب' : 'Create Account'}
                 </Button>
+
+                <p className="text-xs text-[var(--foreground-secondary)] text-center">
+                  {isAr ? 'التسجيل يعمل مباشرة. رسالة التحقق إن وصلت فهي اختيارية وليست شرطًا للدخول.' : 'Registration works immediately. Verification email is optional and no longer required for login.'}
+                </p>
               </motion.form>
             )}
           </AnimatePresence>

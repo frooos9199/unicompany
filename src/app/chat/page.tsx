@@ -6,20 +6,22 @@ import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import Navbar from '@/components/layout/Navbar';
 import Input from '@/components/ui/Input';
-import { FiSend, FiMessageSquare } from 'react-icons/fi';
+import { FiChevronLeft, FiList, FiSend, FiMessageSquare } from 'react-icons/fi';
 import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
+import { ChatMessage, Conversation } from '@/types';
 
 export default function ChatPage() {
   const { locale, theme } = useAppStore();
   const { user, loading: authLoading } = useAuthStore();
   const router = useRouter();
   const isAr = locale === 'ar';
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [showConversationList, setShowConversationList] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function ChatPage() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setConversations(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      setConversations(snapshot.docs.map((docSnapshot) => ({ id: docSnapshot.id, ...docSnapshot.data() } as Conversation)));
     });
 
     return () => unsubscribe();
@@ -59,12 +61,28 @@ export default function ChatPage() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      setMessages(snapshot.docs.map((docSnapshot) => ({ id: docSnapshot.id, ...docSnapshot.data() } as ChatMessage)));
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     });
 
     return () => unsubscribe();
   }, [activeConversation]);
+
+  useEffect(() => {
+    const targetConversation = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('conversation')
+      : null;
+
+    if (targetConversation && conversations.some((conversation) => conversation.id === targetConversation)) {
+      setActiveConversation(targetConversation);
+      setShowConversationList(false);
+      return;
+    }
+
+    if (!activeConversation && conversations.length > 0) {
+      setActiveConversation(conversations[0].id);
+    }
+  }, [activeConversation, conversations]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeConversation || !user) return;
@@ -87,16 +105,32 @@ export default function ChatPage() {
 
   if (authLoading || !user) return null;
 
+  const getConversationTitle = (conversation: Conversation) => {
+    const currentUserIndex = conversation.participants.findIndex((participant) => participant === user.uid);
+    const otherParticipantIndex = currentUserIndex === 0 ? 1 : 0;
+    return conversation.participantNames?.[otherParticipantIndex] || conversation.participantNames?.find((name) => name !== user.displayName) || 'User';
+  };
+
+  const activeConversationDetails = conversations.find((conversation) => conversation.id === activeConversation) || null;
+
   return (
     <main>
       <Navbar />
-      <div className="pt-16 h-screen flex">
+      <div className="pt-16 h-screen flex flex-col md:flex-row">
         {/* Conversations List */}
-        <div className="w-80 border-e border-[var(--border)] bg-[var(--card)] overflow-y-auto hidden md:block">
+        <div className={`${showConversationList ? 'block' : 'hidden'} md:block w-full md:w-80 border-e border-[var(--border)] bg-[var(--card)] overflow-y-auto`}>
           <div className="p-4 border-b border-[var(--border)]">
-            <h2 className="font-semibold text-[var(--foreground)]">
-              {isAr ? 'المحادثات' : 'Conversations'}
-            </h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-semibold text-[var(--foreground)]">
+                {isAr ? 'المحادثات' : 'Conversations'}
+              </h2>
+              <button
+                onClick={() => setShowConversationList(false)}
+                className="md:hidden text-[var(--foreground-secondary)] hover:text-[var(--primary-light)] transition-colors"
+              >
+                <FiChevronLeft size={18} />
+              </button>
+            </div>
           </div>
           {conversations.length === 0 ? (
             <div className="p-8 text-center text-[var(--foreground-secondary)]">
@@ -104,10 +138,16 @@ export default function ChatPage() {
               <p className="text-sm">{isAr ? 'لا توجد محادثات' : 'No conversations'}</p>
             </div>
           ) : (
-            conversations.map(conv => (
+            conversations.map(conv => {
+              const conversationTitle = getConversationTitle(conv);
+
+              return (
               <button
                 key={conv.id}
-                onClick={() => setActiveConversation(conv.id)}
+                onClick={() => {
+                  setActiveConversation(conv.id);
+                  setShowConversationList(false);
+                }}
                 className={`w-full p-4 text-start border-b border-[var(--border)] hover:bg-[var(--background-secondary)] transition-colors ${
                   activeConversation === conv.id ? 'bg-[var(--background-secondary)]' : ''
                 }`}
@@ -118,7 +158,7 @@ export default function ChatPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-[var(--foreground)] text-sm truncate">
-                      {conv.participantNames?.[0] || 'User'}
+                      {conversationTitle}
                     </p>
                     <p className="text-xs text-[var(--foreground-secondary)] truncate">
                       {conv.lastMessage || ''}
@@ -126,14 +166,26 @@ export default function ChatPage() {
                   </div>
                 </div>
               </button>
-            ))
+              );
+            })
           )}
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className={`${showConversationList ? 'hidden md:flex' : 'flex'} flex-1 flex-col`}>
           {activeConversation ? (
             <>
+              <div className="md:hidden flex items-center justify-between gap-3 px-4 py-3 border-b border-[var(--border)] bg-[var(--card)]">
+                <button
+                  onClick={() => setShowConversationList(true)}
+                  className="inline-flex items-center gap-2 text-sm text-[var(--foreground-secondary)] hover:text-[var(--primary-light)] transition-colors"
+                >
+                  <FiList size={16} />
+                  {isAr ? 'المحادثات' : 'Conversations'}
+                </button>
+                <p className="font-medium text-[var(--foreground)] truncate">{activeConversationDetails ? getConversationTitle(activeConversationDetails) : ''}</p>
+              </div>
+
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.map((msg) => (
@@ -180,6 +232,15 @@ export default function ChatPage() {
               <div className="text-center">
                 <FiMessageSquare size={48} className="mx-auto mb-4 opacity-50" />
                 <p>{isAr ? 'اختر محادثة للبدء' : 'Select a conversation to start'}</p>
+                {conversations.length > 0 && (
+                  <button
+                    onClick={() => setShowConversationList(true)}
+                    className="mt-4 inline-flex items-center gap-2 text-sm text-[var(--primary-light)] hover:text-[var(--primary)] transition-colors md:hidden"
+                  >
+                    <FiList size={16} />
+                    {isAr ? 'عرض المحادثات' : 'Show Conversations'}
+                  </button>
+                )}
               </div>
             </div>
           )}
